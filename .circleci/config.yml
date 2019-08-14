@@ -86,14 +86,7 @@ commands:
         - steps: << parameters.before_script >>
         - run:
             name: Script
-            command: |
-                # Set Environment Variables
-                
-                #echo "Set Environment Variables"                
-                #echo 'export TRAVIS_OS_NAME=linux' >> $BASH_ENV
-                #export TRAVIS_OS_NAME=linux
-                #export TRAVIS_BUILD_DIR=$CIRCLE_WORKING_DIRECTORY
-                
+            command: |                
                 echo "${CMD}"
                 # we need travis_wait because the Docker build job can take longer than 10 minutes
                 #- if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
