@@ -28,6 +28,12 @@ commands:
           - run:
               name: Before Install
               command: |
+                # Install System Dependencies
+                
+                sudo apt update 
+                sudo apt install libpcap-dev graphviz
+                #sudo apt install build-essential
+                
                 bundle config without coverage development pcap
                 echo 'gem: --no-ri --no-rdoc' > ~/.gemrc
                 rake --version
@@ -70,12 +76,6 @@ commands:
                 #echo 'export TRAVIS_OS_NAME=linux' >> $BASH_ENV
                 #export TRAVIS_OS_NAME=linux
                 #export TRAVIS_BUILD_DIR=$CIRCLE_WORKING_DIRECTORY
-                
-                # Install System Dependencies
-                
-                sudo apt update 
-                sudo apt install libpcap-dev graphviz
-                #sudo apt install build-essential
                 
                 echo "${CMD}"
                 # we need travis_wait because the Docker build job can take longer than 10 minutes
