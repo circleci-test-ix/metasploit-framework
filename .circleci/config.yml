@@ -1,5 +1,17 @@
 version: 2.1
 
+postgres: &postgres
+  - image: circleci/postgres:9.6-alpine
+    environment:
+      POSTGRES_USER: postgres
+
+branch_filters: &branch_filters
+  filters:
+    branches:
+      ignore:
+        - gh-pages
+        - metakitty
+
 workflows:
   version: 2
   build:
@@ -22,18 +34,6 @@ workflows:
         <<: *branch_filters
     - ruby_2_5_5_docker:
         <<: *branch_filters
-
-postgres: &postgres
-  - image: circleci/postgres:9.6-alpine
-    environment:
-      POSTGRES_USER: postgres
-
-branch_filters: &branch_filters
-  filters:
-    branches:
-      ignore:
-        - gh-pages
-        - metakitty
 
 commands: 
   build_steps:
