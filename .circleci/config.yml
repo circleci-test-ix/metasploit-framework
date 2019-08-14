@@ -74,7 +74,6 @@ commands:
                 git diff --exit-code db/schema.rb
     steps:
         - checkout
-#         - setup_remote_docker
         - restore_cache:
             key: bundle-cache-{{ .Environment.CIRCLE_JOB }}
         - steps: << parameters.before_install >>
@@ -138,7 +137,8 @@ jobs:
       - <<: *postgres
     steps:
       - build_steps:
-          before_install: []
+          before_install:
+            - setup_remote_docker
           before_script: []
       
   ruby_2_6_2_content:
