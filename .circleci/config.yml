@@ -16,24 +16,24 @@ workflows:
   version: 2
   build:
     jobs:
-    - ruby_2_5_5_content:
-        <<: *branch_filters
-    - ruby_2_6_2_content:
-        <<: *branch_filters
+#     - ruby_2_5_5_content:
+#         <<: *branch_filters
+#     - ruby_2_6_2_content:
+#         <<: *branch_filters
     - ruby_2_5_5_exclude_content:
         <<: *branch_filters
-    - ruby_2_6_2_exclude_content:
-        <<: *branch_filters
-    - ruby_2_5_5_content_remote_db:
-        <<: *branch_filters
-    - ruby_2_6_2_content_remote_db:
-        <<: *branch_filters
-    - ruby_2_5_5_exclude_content_remote_db:
-        <<: *branch_filters
-    - ruby_2_6_2_exclude_content_remote_db:
-        <<: *branch_filters
-    - ruby_2_5_5_docker:
-        <<: *branch_filters
+#     - ruby_2_6_2_exclude_content:
+#         <<: *branch_filters
+#     - ruby_2_5_5_content_remote_db:
+#         <<: *branch_filters
+#     - ruby_2_6_2_content_remote_db:
+#         <<: *branch_filters
+#     - ruby_2_5_5_exclude_content_remote_db:
+#         <<: *branch_filters
+#     - ruby_2_6_2_exclude_content_remote_db:
+#         <<: *branch_filters
+#     - ruby_2_5_5_docker:
+#         <<: *branch_filters
 
 commands: 
   build_steps:
@@ -49,6 +49,7 @@ commands:
                 sudo apt update 
                 sudo apt install libpcap-dev graphviz
                 #sudo apt install build-essential
+                sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev libpq-dev zlib1g-dev libsqlite3-dev
                 
                 bundle config without coverage development pcap
                 echo 'gem: --no-ri --no-rdoc' > ~/.gemrc
