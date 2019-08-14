@@ -1,0 +1,166 @@
+version: 2.1
+
+workflows:
+  version: 2
+  build:
+    jobs:
+    - python_2_5_5_content
+    - python_2_6_2_content
+    - python_2_5_5_exclude_content
+    - python_2_6_2_exclude_content
+    - python_2_5_5_content_remote_db
+    - python_2_6_2_content_remote_db
+    - python_2_5_5_exclude_content_remote_db
+    - python_2_6_2_exclude_content_remote_db
+    - python_2_5_5_docker
+
+postgres: &postgres
+  - image: circleci/postgres:9.6-alpine
+    environment:
+      POSTGRES_USER: postgres
+
+commands: 
+  build_steps:
+    parameters:
+      before_install:
+        type: steps
+        default:
+          - run: |
+              name: Before Install
+              command: |
+                echo 'gem: --no-ri --no-rdoc' > ~/.gemrc
+                rake --version
+                # Fail build if msftidy is not successful
+                ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+                ls -la ./.git/hooks
+                ./.git/hooks/post-merge
+                # Update the bundler
+                gem update --system
+                gem install bundler
+      before_script:
+        type: steps
+        default:
+          - run:
+              name: Before Script
+              command: |
+                cp config/database.yml.travis config/database.yml
+                bundle exec rake --version
+                bundle exec rake db:create
+                bundle exec rake db:migrate
+                # fail build if db/schema.rb update is not committed
+                git diff --exit-code db/schema.rb
+    steps:
+        - checkout
+#         - restore_cache:
+#             keys:
+#               - v1_cache
+        - steps: << parameters.before_install >>
+        - steps: << parameters.before_script >>
+        - run:
+            name: Script
+            command: |
+                # Set Environment Variables
+                
+                #echo "Set Environment Variables"                
+                #echo 'export TRAVIS_OS_NAME=linux' >> $BASH_ENV
+                #export TRAVIS_OS_NAME=linux
+                #export TRAVIS_BUILD_DIR=$CIRCLE_WORKING_DIRECTORY
+                
+                # Install System Dependencies
+                
+                sudo apt update 
+                sudo apt install libpcap-dev graphviz
+                #sudo apt install build-essential
+                
+                echo "${CMD}"
+                # we need travis_wait because the Docker build job can take longer than 10 minutes
+                #- if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
+                # docker_wait is currently broken on travis-ci, so let's just run CMD directly for now
+                bash -c "${CMD}"
+        - save_cache:
+            key: test
+            paths: 
+              - /home/circleci/.cache
+              - /home/circleci/.ccache
+
+jobs:
+  ruby_2_5_5_content:
+    docker:      
+      - image: circleci/ruby:2.5.5-stretch
+        environment:
+          CMD: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
+      - <<: *postgres
+    steps:
+      - build_steps
+      
+  ruby_2_5_5_exclude_content:
+    docker:      
+      - image: circleci/ruby:2.5.5-stretch
+        environment:
+          CMD: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
+      - <<: *postgres
+    steps:
+      - build_steps
+      
+  ruby_2_5_5_content_remote_db:
+    docker:      
+      - image: circleci/ruby:2.5.5-stretch
+        environment:
+          CMD: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
+      - <<: *postgres
+    steps:
+      - build_steps
+      
+  ruby_2_5_5_exclude_content_remote_db:
+    docker:      
+      - image: circleci/ruby:2.5.5-stretch
+        environment:
+          CMD: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1'
+      - <<: *postgres
+    steps:
+      - build_steps
+      
+  ruby_2_5_5_docker:
+    docker:      
+      - image: circleci/ruby:2.5.5-stretch
+        environment:
+          CMD: '/usr/bin/docker-compose build DOCKER="true"'
+      - <<: *postgres
+    steps:
+      - build_steps
+      
+  ruby_2_6_2_content:
+    docker:      
+      - image: circleci/ruby:2.6.2-stretch
+        environment:
+          CMD: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
+      - <<: *postgres
+    steps:
+      - build_steps
+      
+  ruby_2_6_2_exclude_content:
+    docker:      
+      - image: circleci/ruby:2.6.2-stretch
+        environment:
+          CMD: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
+      - <<: *postgres
+    steps:
+      - build_steps
+      
+  ruby_2_6_2_content_remote_db:
+    docker:      
+      - image: circleci/ruby:2.6.2-stretch
+        environment:
+          CMD: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
+      - <<: *postgres
+    steps:
+      - build_steps
+      
+  ruby_2_6_2_exclude_content_remote_db:
+    docker:      
+      - image: circleci/ruby:2.6.2-stretch
+        environment:
+          CMD: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1'
+      - <<: *postgres
+    steps:
+      - build_steps      
