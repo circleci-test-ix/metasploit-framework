@@ -25,7 +25,7 @@ commands:
       before_install:
         type: steps
         default:
-          - run: |
+          - run:
               name: Before Install
               command: |
                 echo 'gem: --no-ri --no-rdoc' > ~/.gemrc
