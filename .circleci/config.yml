@@ -76,7 +76,7 @@ commands:
                 git diff --exit-code db/schema.rb
     steps:
         - checkout
-        - setup_remote_docker
+#         - setup_remote_docker
         - restore_cache:
             key: bundle-cache-{{ .Environment.CIRCLE_JOB }}
         - steps: << parameters.before_install >>
