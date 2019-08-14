@@ -4,14 +4,14 @@ workflows:
   version: 2
   build:
     jobs:
-#     - ruby_2_5_5_content
-#     - ruby_2_6_2_content
-#     - ruby_2_5_5_exclude_content
-#     - ruby_2_6_2_exclude_content
-#     - ruby_2_5_5_content_remote_db
-#     - ruby_2_6_2_content_remote_db
-#     - ruby_2_5_5_exclude_content_remote_db
-#     - ruby_2_6_2_exclude_content_remote_db
+    - ruby_2_5_5_content
+    - ruby_2_6_2_content
+    - ruby_2_5_5_exclude_content
+    - ruby_2_6_2_exclude_content
+    - ruby_2_5_5_content_remote_db
+    - ruby_2_6_2_content_remote_db
+    - ruby_2_5_5_exclude_content_remote_db
+    - ruby_2_6_2_exclude_content_remote_db
     - ruby_2_5_5_docker
 
 postgres: &postgres
@@ -61,10 +61,10 @@ commands:
         - checkout
         - setup_remote_docker
         - restore_cache:
-            key: bundle-cache
+            key: bundle-cache-{{ .Environment.CIRCLE_JOB }}
         - steps: << parameters.before_install >>
         - save_cache:
-            key: bundle-cache
+            key: bundle-cache-{{ .Environment.CIRCLE_JOB }}
             paths: 
               - vendor/bundle
         - steps: << parameters.before_script >>
@@ -125,7 +125,8 @@ jobs:
     docker:      
       - image: circleci/ruby:2.5.5-stretch
         environment:
-          CMD: 'docker-compose build DOCKER="true"'
+          CMD: 'docker-compose build'
+          DOCKER: 'true'
       - <<: *postgres
     steps:
       - build_steps:
